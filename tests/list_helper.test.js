@@ -99,4 +99,9 @@ describe("return author", () => {
     const result = listHelper.returnAuthorWithMostBlogs(blogs);
     assert.deepStrictEqual(result, { author: "Robert C. Martin", blogs: 3 });
   });
+
+  test("with most likes", () => {
+    const result = listHelper.returnAuthorWithMostLikes(blogs);
+    assert.deepStrictEqual(result, { author: "Edsger W. Dijkstra", likes: 17 });
+  });
 });

@@ -19,20 +19,44 @@ const returnFavoriteBlog = (blogs) => {
 };
 
 const returnAuthorWithMostBlogs = (blogs) => {
-  const arr = _.sortBy(blogs, [
+  const sortedArray = _.sortBy(blogs, [
     function (b) {
       return b.author;
     },
   ]);
 
-  const blogsAmount = arr.filter(
-    (b) => b.author === arr[arr.length - 1].author
+  const blogsAmount = sortedArray.filter(
+    (b) => b.author === sortedArray[sortedArray.length - 1].author
   ).length;
 
   return {
-    author: arr[arr.length - 1].author,
+    author: sortedArray[sortedArray.length - 1].author,
     blogs: blogsAmount,
   };
+};
+
+const returnAuthorWithMostLikes = (blogs) => {
+  const likesByAuthor = {};
+
+  blogs.forEach((blog) => {
+    if (likesByAuthor[blog.author]) {
+      likesByAuthor[blog.author] += blog.likes;
+    } else {
+      likesByAuthor[blog.author] = blog.likes;
+    }
+  });
+
+  let topAuthor = null;
+  let maxLikes = 0;
+
+  for (const author in likesByAuthor) {
+    if (likesByAuthor[author] > maxLikes) {
+      maxLikes = likesByAuthor[author];
+      topAuthor = author;
+    }
+  }
+
+  return { author: topAuthor, likes: maxLikes };
 };
 
 module.exports = {
@@ -40,4 +64,5 @@ module.exports = {
   totalLikes,
   returnFavoriteBlog,
   returnAuthorWithMostBlogs,
+  returnAuthorWithMostLikes,
 };
