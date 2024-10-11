@@ -44,6 +44,27 @@ test("the toJSON method transforms _id to id", async () => {
   });
 });
 
+test("a valid blog can be added", async () => {
+  const newBlog = {
+    title: "test",
+    author: "test",
+    url: "test.de",
+    likes: 0,
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsAtEnd = await api.get("/api/blogs");
+  assert.strictEqual(
+    blogsAtEnd.body.length,
+    test_helper.initialBlogs.length + 1
+  );
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
