@@ -65,6 +65,40 @@ test("a valid blog can be added", async () => {
   );
 });
 
+test.only("a blog without likes property defaults to 0", async () => {
+  const newBlog = {
+    title: "test",
+    author: "test",
+    url: "test.de",
+  };
+
+  const response = await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  assert.strictEqual(response.body.likes, 0);
+});
+
+test("creating a blog without title returns 400", async () => {
+  const newBlog = {
+    author: "test",
+    url: "test.de",
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+});
+
+test("creating a blog without url returns 400", async () => {
+  const newBlog = {
+    title: "test",
+    author: "test",
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
