@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
 const assert = require("node:assert");
-const { test, after, beforeEach } = require("node:test");
+const { test, after, beforeEach, describe } = require("node:test");
 const Blog = require("../models/blog");
 const test_helper = require("./test_helper.js");
 
@@ -44,59 +44,61 @@ test("the toJSON method transforms _id to id", async () => {
   });
 });
 
-test("a valid blog can be added", async () => {
-  const newBlog = {
-    title: "test",
-    author: "test",
-    url: "test.de",
-    likes: 0,
-  };
+describe("addition of a new blog", () => {
+  test("that is valid", async () => {
+    const newBlog = {
+      title: "test",
+      author: "test",
+      url: "test.de",
+      likes: 0,
+    };
 
-  await api
-    .post("/api/blogs")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
 
-  const blogsAtEnd = await api.get("/api/blogs");
-  assert.strictEqual(
-    blogsAtEnd.body.length,
-    test_helper.initialBlogs.length + 1
-  );
-});
+    const blogsAtEnd = await api.get("/api/blogs");
+    assert.strictEqual(
+      blogsAtEnd.body.length,
+      test_helper.initialBlogs.length + 1
+    );
+  });
 
-test.only("a blog without likes property defaults to 0", async () => {
-  const newBlog = {
-    title: "test",
-    author: "test",
-    url: "test.de",
-  };
+  test("without the likes property that defaults to 0", async () => {
+    const newBlog = {
+      title: "test",
+      author: "test",
+      url: "test.de",
+    };
 
-  const response = await api
-    .post("/api/blogs")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
+    const response = await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
 
-  assert.strictEqual(response.body.likes, 0);
-});
+    assert.strictEqual(response.body.likes, 0);
+  });
 
-test("creating a blog without title returns 400", async () => {
-  const newBlog = {
-    author: "test",
-    url: "test.de",
-  };
+  test("without title returns 400", async () => {
+    const newBlog = {
+      author: "test",
+      url: "test.de",
+    };
 
-  await api.post("/api/blogs").send(newBlog).expect(400);
-});
+    await api.post("/api/blogs").send(newBlog).expect(400);
+  });
 
-test("creating a blog without url returns 400", async () => {
-  const newBlog = {
-    title: "test",
-    author: "test",
-  };
+  test("without url returns 400", async () => {
+    const newBlog = {
+      title: "test",
+      author: "test",
+    };
 
-  await api.post("/api/blogs").send(newBlog).expect(400);
+    await api.post("/api/blogs").send(newBlog).expect(400);
+  });
 });
 
 after(async () => {
