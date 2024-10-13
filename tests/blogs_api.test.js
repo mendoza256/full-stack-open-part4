@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const supertest = require("supertest");
-const app = require("../app");
+const app = require("../app.js");
 const assert = require("node:assert");
 const { test, after, beforeEach, describe } = require("node:test");
-const Blog = require("../models/blog");
+const Blog = require("../models/blog.js");
 const test_helper = require("./test_helper.js");
 
 beforeEach(async () => {

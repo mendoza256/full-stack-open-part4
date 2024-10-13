@@ -1,0 +1,25 @@
+GET http://localhost:3003/api/users
+
+###
+POST http://localhost:3003/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "username": "Miffi",
+    "name": "Miffi Muffifamily",
+    "password": "asdfalksdf"
+}
+
+###
+DELETE http://localhost:3003/api/users/670c07e6744a9c7b63cc089c
+
+###
+PUT http://localhost:3003/api/users/670c09ce5998aaf935ee8729 HTTP/1.1
+content-type: application/json
+
+{
+    "title": "sample 3",
+    "author": "miffi",
+    "url": "localhost:3001",
+    "likes": 0
+}

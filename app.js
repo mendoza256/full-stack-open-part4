@@ -1,4 +1,5 @@
 const blogRouter = require("./controllers/blogs");
+const userRouter = require("./controllers/users");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -25,5 +26,6 @@ app.use(
 );
 
 app.use("/api/blogs/", blogRouter);
+app.use("/api/users/", userRouter);
 
 module.exports = app;
