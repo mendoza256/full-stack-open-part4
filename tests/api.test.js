@@ -101,6 +101,37 @@ describe("addition of a new blog", () => {
   });
 });
 
+describe("a specified blog", () => {
+  test("gets deleted", async () => {
+    const blogsAtStart = await api.get("/api/blogs");
+    const blogToDelete = blogsAtStart.body[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+    const blogsAtEnd = await test_helper.blogsInDB();
+
+    assert.strictEqual(blogsAtEnd.length, test_helper.initialBlogs.length - 1);
+  });
+
+  test("gets its likes updated", async () => {
+    const response = await api.get("/api/blogs");
+    const blogToUpdate = response.body[0];
+    const updatedBlog = {
+      ...blogToUpdate,
+      likes: 8, // updated  +1 like
+    };
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .expect(200);
+
+    const blogsAtEnd = await test_helper.blogsInDB();
+
+    assert.strictEqual(blogsAtEnd[0].likes, 8);
+  });
+});
+
 after(async () => {
   await mongoose.connection.close();
 });

@@ -5,8 +5,22 @@ POST http://localhost:3003/api/blogs HTTP/1.1
 content-type: application/json
 
 {
-    "title": "sample 1",
+    "title": "sample 2",
     "author": "miffi",
     "url": "localhost:3001",
     "likes": 9999
+}
+
+###
+DELETE http://localhost:3003/api/blogs/670c07e6744a9c7b63cc089c
+
+###
+PUT http://localhost:3003/api/blogs/670c09ce5998aaf935ee8729 HTTP/1.1
+content-type: application/json
+
+{
+    "title": "sample 3",
+    "author": "miffi",
+    "url": "localhost:3001",
+    "likes": 0
 }
