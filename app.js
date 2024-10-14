@@ -6,6 +6,8 @@ const app = express();
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const config = require("./utils/config");
+const loginRouter = require("./controllers/login");
+const { error } = require("./utils/middleware");
 
 const mongoUrl = config.MONGODB_URI;
 
@@ -27,5 +29,8 @@ app.use(
 
 app.use("/api/blogs/", blogRouter);
 app.use("/api/users/", userRouter);
+app.use("/api/login", loginRouter);
+
+app.use(error);
 
 module.exports = app;

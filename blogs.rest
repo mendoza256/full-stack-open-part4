@@ -8,7 +8,7 @@ content-type: application/json
     "title": "sample 2",
     "author": "miffi",
     "url": "localhost:3001",
-    "likes": 9999
+    "userId": "670cd46821d98be6755a1ada"
 }
 
 ###

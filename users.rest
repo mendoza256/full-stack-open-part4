@@ -5,9 +5,9 @@ POST http://localhost:3003/api/users HTTP/1.1
 content-type: application/json
 
 {
-    "username": "Miffi",
+    "username": "rose",
     "name": "Miffi Muffifamily",
-    "password": "asdfalksdf"
+    "password": "df"
 }
 
 ###
@@ -22,4 +22,13 @@ content-type: application/json
     "author": "miffi",
     "url": "localhost:3001",
     "likes": 0
+}
+
+###
+POST http://localhost:3003/api/login/
+content-type: application/json
+
+{
+    "username": "ML1234",
+    "name": "Marie Louise"
 }

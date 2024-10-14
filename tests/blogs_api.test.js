@@ -50,7 +50,7 @@ describe("addition of a new blog", () => {
       title: "test",
       author: "test",
       url: "test.de",
-      likes: 0,
+      userId: "670cd46821d98be6755a1ada", // id of root user
     };
 
     await api
@@ -71,6 +71,7 @@ describe("addition of a new blog", () => {
       title: "test",
       author: "test",
       url: "test.de",
+      userId: "670cd46821d98be6755a1ada", // id of root user
     };
 
     const response = await api
@@ -86,6 +87,7 @@ describe("addition of a new blog", () => {
     const newBlog = {
       author: "test",
       url: "test.de",
+      userId: "670cd46821d98be6755a1ada", // id of root user
     };
 
     await api.post("/api/blogs").send(newBlog).expect(400);
@@ -95,6 +97,7 @@ describe("addition of a new blog", () => {
     const newBlog = {
       title: "test",
       author: "test",
+      userId: "670cd46821d98be6755a1ada", // id of root user
     };
 
     await api.post("/api/blogs").send(newBlog).expect(400);
