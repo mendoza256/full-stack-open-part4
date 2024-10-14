@@ -18,7 +18,7 @@ beforeEach(async () => {
 });
 
 describe("when there is initially one user in db", () => {
-  test.only("creation fails with proper statuscode and message if username already taken", async () => {
+  test("creation fails with proper statuscode and message if username already taken", async () => {
     const usersAtStart = await test_helper.usersInDb();
 
     const newUser = {
@@ -40,7 +40,7 @@ describe("when there is initially one user in db", () => {
   });
 });
 
-test.only("creation succeeds with a fresh username", async () => {
+test("creation succeeds with a fresh username", async () => {
   const usersAtStart = await test_helper.usersInDb();
 
   const newUser = {
@@ -62,7 +62,7 @@ test.only("creation succeeds with a fresh username", async () => {
   assert.ok(usernames.includes(newUser.username));
 });
 
-test.only("invalid users are not created", async () => {
+test("invalid users are not created", async () => {
   const usersAtStart = await test_helper.usersInDb();
 
   const newUser = {
@@ -81,7 +81,7 @@ test.only("invalid users are not created", async () => {
   assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 });
 
-test.only("user tries to login with invalid password can't log in", async () => {
+test("user tries to login with invalid password can't log in", async () => {
   const usersAtStart = await test_helper.usersInDb();
 
   const newUser = {
@@ -101,7 +101,7 @@ test.only("user tries to login with invalid password can't log in", async () => 
   assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 });
 
-test.only("user with short username can't login", async () => {
+test("user with short username can't login", async () => {
   const usersAtStart = await test_helper.usersInDb();
 
   const newUser = {
