@@ -1,20 +1,28 @@
-const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app.js");
+const api = supertest(app);
+
+const mongoose = require("mongoose");
+const Blog = require("../models/blog.js");
+const User = require("../models/user.js");
 const assert = require("node:assert");
 const { test, after, beforeEach, describe } = require("node:test");
-const Blog = require("../models/blog.js");
-const test_helper = require("./test_helper.js");
+
+const test_helper = require("./utils/test_helper_users.js");
 
 beforeEach(async () => {
+  await User.deleteMany({});
+
+  const usersInDb = await User.insertMany(test_helper.initialUsers);
+
   await Blog.deleteMany({});
 
-  const blogsObjects = test_helper.initialBlogs.map((blog) => new Blog(blog));
+  const initialBlogs = test_helper.getInitialBlogsWithUserId(usersInDb);
+
+  const blogsObjects = initialBlogs.map((blog) => new Blog(blog));
   const promiseArray = blogsObjects.map((blog) => blog.save());
   await Promise.all(promiseArray);
 });
-
-const api = supertest(app);
 
 test("blogs are returned as json", async () => {
   await api
@@ -46,11 +54,13 @@ test("the toJSON method transforms _id to id", async () => {
 
 describe("addition of a new blog", () => {
   test("that is valid", async () => {
+    const usersAtStart = await test_helper.usersInDb();
+
     const newBlog = {
       title: "test",
       author: "test",
       url: "test.de",
-      userId: "670cd46821d98be6755a1ada", // id of root user
+      userId: usersAtStart[0].id,
     };
 
     await api
@@ -67,11 +77,13 @@ describe("addition of a new blog", () => {
   });
 
   test("without the likes property that defaults to 0", async () => {
+    const usersAtStart = await test_helper.usersInDb();
+
     const newBlog = {
       title: "test",
       author: "test",
       url: "test.de",
-      userId: "670cd46821d98be6755a1ada", // id of root user
+      userId: usersAtStart[0].id,
     };
 
     const response = await api
@@ -84,20 +96,24 @@ describe("addition of a new blog", () => {
   });
 
   test("without title returns 400", async () => {
+    const usersAtStart = await test_helper.usersInDb();
+
     const newBlog = {
       author: "test",
       url: "test.de",
-      userId: "670cd46821d98be6755a1ada", // id of root user
+      userId: usersAtStart[0].id,
     };
 
     await api.post("/api/blogs").send(newBlog).expect(400);
   });
 
   test("without url returns 400", async () => {
+    const usersAtStart = await test_helper.usersInDb();
+
     const newBlog = {
       title: "test",
       author: "test",
-      userId: "670cd46821d98be6755a1ada", // id of root user
+      userId: usersAtStart[0].id,
     };
 
     await api.post("/api/blogs").send(newBlog).expect(400);
