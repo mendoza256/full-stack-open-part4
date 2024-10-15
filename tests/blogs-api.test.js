@@ -6,19 +6,19 @@ const mongoose = require("mongoose");
 const Blog = require("../models/blog.js");
 const User = require("../models/user.js");
 const assert = require("node:assert");
-const { test, after, beforeEach, describe } = require("node:test");
+const { test, beforeEach, describe, after } = require("node:test");
 
-const test_helper = require("./utils/test_helper_users.js");
+const users_helper = require("./utils/test_helper_users.js");
+const blogs_helper = require("./utils/test_helper_blogs.js");
 
 beforeEach(async () => {
+  // set up users
   await User.deleteMany({});
+  const usersInDb = await User.insertMany(users_helper.initialUsers);
 
-  const usersInDb = await User.insertMany(test_helper.initialUsers);
-
+  // set up blogs
   await Blog.deleteMany({});
-
-  const initialBlogs = test_helper.getInitialBlogsWithUserId(usersInDb);
-
+  const initialBlogs = blogs_helper.getInitialBlogsWithUserId(usersInDb);
   const blogsObjects = initialBlogs.map((blog) => new Blog(blog));
   const promiseArray = blogsObjects.map((blog) => blog.save());
   await Promise.all(promiseArray);
@@ -34,7 +34,7 @@ test("blogs are returned as json", async () => {
 test("there are two blogs", async () => {
   const response = await api.get("/api/blogs");
 
-  assert.strictEqual(response.body.length, test_helper.initialBlogs.length);
+  assert.strictEqual(response.body.length, blogs_helper.initialBlogs.length);
 });
 
 test("the first note is about Go To Statement", async () => {
@@ -54,7 +54,7 @@ test("the toJSON method transforms _id to id", async () => {
 
 describe("addition of a new blog", () => {
   test("that is valid", async () => {
-    const usersAtStart = await test_helper.usersInDb();
+    const usersAtStart = await users_helper.usersInDb();
 
     const newBlog = {
       title: "test",
@@ -72,12 +72,12 @@ describe("addition of a new blog", () => {
     const blogsAtEnd = await api.get("/api/blogs");
     assert.strictEqual(
       blogsAtEnd.body.length,
-      test_helper.initialBlogs.length + 1
+      blogs_helper.initialBlogs.length + 1
     );
   });
 
   test("without the likes property that defaults to 0", async () => {
-    const usersAtStart = await test_helper.usersInDb();
+    const usersAtStart = await users_helper.usersInDb();
 
     const newBlog = {
       title: "test",
@@ -96,7 +96,7 @@ describe("addition of a new blog", () => {
   });
 
   test("without title returns 400", async () => {
-    const usersAtStart = await test_helper.usersInDb();
+    const usersAtStart = await users_helper.usersInDb();
 
     const newBlog = {
       author: "test",
@@ -108,7 +108,7 @@ describe("addition of a new blog", () => {
   });
 
   test("without url returns 400", async () => {
-    const usersAtStart = await test_helper.usersInDb();
+    const usersAtStart = await users_helper.usersInDb();
 
     const newBlog = {
       title: "test",
@@ -127,9 +127,9 @@ describe("a specified blog", () => {
 
     await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
 
-    const blogsAtEnd = await test_helper.blogsInDB();
+    const blogsAtEnd = await blogs_helper.blogsInDB();
 
-    assert.strictEqual(blogsAtEnd.length, test_helper.initialBlogs.length - 1);
+    assert.strictEqual(blogsAtEnd.length, blogs_helper.initialBlogs.length - 1);
   });
 
   test("gets its likes updated", async () => {
@@ -145,12 +145,12 @@ describe("a specified blog", () => {
       .send(updatedBlog)
       .expect(200);
 
-    const blogsAtEnd = await test_helper.blogsInDB();
+    const blogsAtEnd = await blogs_helper.blogsInDB();
 
     assert.strictEqual(blogsAtEnd[0].likes, 8);
   });
 });
 
 after(async () => {
-  await mongoose.connection.close();
+  mongoose.connection.close();
 });

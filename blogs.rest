@@ -5,10 +5,10 @@ POST http://localhost:3003/api/blogs HTTP/1.1
 content-type: application/json
 
 {
-    "title": "sample 6",
+    "title": "sample 7",
     "author": "muffi",
     "url": "localhost:3002/blog2",
-    "userId": "670d5ad981e6c12dcb49ec9d"
+    "userId": "670ed1104d488fa399a313b1"
 }
 
 ###

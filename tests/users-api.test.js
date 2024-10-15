@@ -5,24 +5,26 @@ const assert = require("node:assert");
 const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app);
-const test_helper = require("./utils/test_helper_users");
+const users_helper = require("./utils/test_helper_users.js");
 const mongoose = require("mongoose");
 
 beforeEach(async () => {
   await User.deleteMany({});
 
+  await User.insertMany(users_helper.initialUsers);
   const passwordHash = await bcrypt.hash(process.env.SECRET, 10);
-  const user = new User({ username: "root", passwordHash });
+  const passwordHashString = passwordHash.toString();
+  const user = new User({ username: "root", passwordHash: passwordHashString });
 
   await user.save();
 });
 
 describe("when there is initially one user in db", () => {
   test("creation fails with proper statuscode and message if username already taken", async () => {
-    const usersAtStart = await test_helper.usersInDb();
+    const usersAtStart = await users_helper.usersInDb();
 
     const newUser = {
-      username: "root",
+      username: "user",
       name: "Superuser",
       password: "salainen",
     };
@@ -33,7 +35,7 @@ describe("when there is initially one user in db", () => {
       .expect(400)
       .expect("Content-Type", /application\/json/);
 
-    const usersAtEnd = await test_helper.usersInDb();
+    const usersAtEnd = await users_helper.usersInDb();
     assert(result.body.error.includes("expected `username` to be unique"));
 
     assert.strictEqual(usersAtEnd.length, usersAtStart.length);
@@ -41,7 +43,7 @@ describe("when there is initially one user in db", () => {
 });
 
 test("creation succeeds with a fresh username", async () => {
-  const usersAtStart = await test_helper.usersInDb();
+  const usersAtStart = await users_helper.usersInDb();
 
   const newUser = {
     username: "Testuser",
@@ -55,7 +57,7 @@ test("creation succeeds with a fresh username", async () => {
     .expect(200)
     .expect("Content-Type", /application\/json/);
 
-  const usersAtEnd = await test_helper.usersInDb();
+  const usersAtEnd = await users_helper.usersInDb();
   assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1);
 
   const usernames = usersAtEnd.map((u) => u.username);
@@ -63,7 +65,7 @@ test("creation succeeds with a fresh username", async () => {
 });
 
 test("invalid users are not created", async () => {
-  const usersAtStart = await test_helper.usersInDb();
+  const usersAtStart = await users_helper.usersInDb();
 
   const newUser = {
     username: "Te",
@@ -77,12 +79,12 @@ test("invalid users are not created", async () => {
     .expect(400)
     .expect("Content-Type", /application\/json/);
 
-  const usersAtEnd = await test_helper.usersInDb();
+  const usersAtEnd = await users_helper.usersInDb();
   assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 });
 
 test("user tries to login with invalid password can't log in", async () => {
-  const usersAtStart = await test_helper.usersInDb();
+  const usersAtStart = await users_helper.usersInDb();
 
   const newUser = {
     username: "Testuser",
@@ -97,12 +99,12 @@ test("user tries to login with invalid password can't log in", async () => {
     .expect(400)
     .expect("Content-Type", /application\/json/);
 
-  const usersAtEnd = await test_helper.usersInDb();
+  const usersAtEnd = await users_helper.usersInDb();
   assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 });
 
 test("user with short username can't login", async () => {
-  const usersAtStart = await test_helper.usersInDb();
+  const usersAtStart = await users_helper.usersInDb();
 
   const newUser = {
     username: "Te",
@@ -117,7 +119,7 @@ test("user with short username can't login", async () => {
     .expect(400)
     .expect("Content-Type", /application\/json/);
 
-  const usersAtEnd = await test_helper.usersInDb();
+  const usersAtEnd = await users_helper.usersInDb();
   assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 });
 
