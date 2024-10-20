@@ -8,7 +8,7 @@ content-type: application/json
     "title": "sample 7",
     "author": "muffi",
     "url": "localhost:3002/blog2",
-    "userId": "670ed1104d488fa399a313b1"
+    "userId": "670ed8cc77adf738d8374828"
 }
 
 ###

@@ -26,6 +26,8 @@ app.use(
     ":method :url :status :res[content-length] - :response-time ms content: :resbody"
   )
 );
+// TODO add token extractor
+// app.use(middleware.tokenExtractor)
 
 app.use("/api/blogs/", blogRouter);
 app.use("/api/users/", userRouter);

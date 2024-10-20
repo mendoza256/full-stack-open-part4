@@ -11,7 +11,7 @@ content-type: application/json
 }
 
 ###
-DELETE http://localhost:3003/api/users/670c07e6744a9c7b63cc089c
+DELETE http://localhost:3003/api/users/670ed8cc77adf738d8374828
 
 ###
 PUT http://localhost:3003/api/users/670c09ce5998aaf935ee8729 HTTP/1.1
