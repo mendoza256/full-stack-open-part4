@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+
 const info = (...params) => {
   if (process.env.NODE_ENV !== "test") {
     // eslint-disable-next-line no-console
@@ -36,8 +39,27 @@ const getTokenFrom = (request, response, next) => {
   next();
 };
 
+const userExtractor = async (request, response, next) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
+    const token = authorization.substring(7);
+    try {
+      const decodedToken = jwt.verify(token, process.env.SECRET);
+      if (!decodedToken.id) {
+        return response.status(401).json({ error: "token invalid" });
+      }
+      request.user = await User.findById(decodedToken.id);
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+  }
+  next();
+};
+
 module.exports = {
   info,
   error,
   getTokenFrom,
+  userExtractor,
 };
