@@ -29,20 +29,23 @@ blogRouter.post("/", async (request, response) => {
     return response.status(401).json({ error: "token invalid" });
   }
 
-  const user = await User.findById(decodedToken.id).populate("blogs");
+  const user = await User.findById(decodedToken.id);
 
-  const newBlog = {
+  if (!user) {
+    return response.status(404).json({ error: "user not found" });
+  }
+
+  const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user,
-  };
+    user: user._id,
+  });
 
   try {
-    const blog = new Blog(newBlog);
     const savedBlog = await blog.save();
-    user.blogs = user.blogs.concat(savedBlog.id);
+    user.blogs = user.blogs.concat(savedBlog._id);
     await user.save();
 
     response.status(201).json(savedBlog);

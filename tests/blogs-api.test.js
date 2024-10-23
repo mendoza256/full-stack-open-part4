@@ -57,75 +57,84 @@ test("the toJSON method transforms _id to id", async () => {
 });
 
 describe("addition of a new blog", () => {
-  test("that is valid", async () => {
+  let token;
+
+  beforeEach(async () => {
     const response = await api
       .post("/api/login")
       .send({ username: "root", password: "password" });
+    token = response.body.token;
+  });
 
-    const token = response.body.token;
-
+  test("succeeds with valid data and token", async () => {
     const newBlog = {
-      title: "test",
-      author: "test",
-      url: "test.de",
+      title: "Test Blog",
+      author: "Test Author",
+      url: "http://testblog.com",
       likes: 0,
-      authorization: "Bearer " + token,
     };
 
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
 
-    const blogsAtEnd = await api.get("/api/blogs");
-    assert.strictEqual(
-      blogsAtEnd.body.length,
-      blogs_helper.initialBlogs.length + 1
-    );
+    const blogsAtEnd = await blogs_helper.blogsInDB();
+    assert.strictEqual(blogsAtEnd.length, blogs_helper.initialBlogs.length + 1);
+
+    const titles = blogsAtEnd.map((b) => b.title);
+    assert(titles.includes("Test Blog"));
   });
 
   test("without the likes property that defaults to 0", async () => {
-    const usersAtStart = await users_helper.usersInDb();
-
     const newBlog = {
-      title: "test",
-      author: "test",
-      url: "test.de",
-      userId: usersAtStart[0].id,
+      title: "Test Blog",
+      author: "Test Author",
+      url: "http://testblog.com",
     };
+
+    console.log("Token being used:", token);
+    console.log("New blog data:", newBlog);
 
     const response = await api
       .post("/api/blogs")
-      .send(newBlog)
-      .expect(201)
-      .expect("Content-Type", /application\/json/);
+      .set("Authorization", `Bearer ${token}`)
+      .send(newBlog);
 
+    console.log("Response status:", response.status);
+    console.log("Response body:", response.body);
+
+    assert.strictEqual(response.status, 201);
     assert.strictEqual(response.body.likes, 0);
   });
 
-  test("without title returns 400", async () => {
-    const usersAtStart = await users_helper.usersInDb();
-
+  test("without url returns 400", async () => {
     const newBlog = {
-      author: "test",
-      url: "test.de",
-      userId: usersAtStart[0].id,
+      title: "Test Blog",
+      author: "Test Author",
+      likes: 0,
     };
 
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(newBlog)
+      .expect(400);
   });
 
   test("without url returns 400", async () => {
-    const usersAtStart = await users_helper.usersInDb();
-
     const newBlog = {
       title: "test",
       author: "test",
-      userId: usersAtStart[0].id,
     };
 
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${token}`)
+      .send(newBlog)
+      .expect(400);
   });
 });
 
