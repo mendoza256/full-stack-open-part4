@@ -48,14 +48,41 @@ blogRouter.post("/", async (request, response) => {
 });
 
 blogRouter.delete("/:id", async (request, response) => {
-  const blog = await Blog.findById(request.params.id);
+  try {
+    if (!request.token) {
+      return response.status(401).json({ error: "token missing" });
+    }
 
-  if (!blog) {
-    return response.status(404).end();
+    let decodedToken;
+    try {
+      decodedToken = jwt.verify(request.token, process.env.SECRET);
+    } catch (error) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "token invalid" });
+    }
+
+    const blog = await Blog.findById(request.params.id);
+
+    if (!blog) {
+      return response.status(404).json({ error: "blog not found" });
+    }
+
+    if (blog.user.toString() !== decodedToken.id.toString()) {
+      return response
+        .status(403)
+        .json({ error: "only the creator can delete this blog" });
+    }
+
+    await Blog.findByIdAndDelete(request.params.id);
+    response.status(204).end();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Error in delete route:", error);
+    response.status(500).json({ error: "internal server error" });
   }
-
-  await Blog.findByIdAndDelete(blog);
-  response.status(204).end();
 });
 
 blogRouter.put("/:id", async (request, response) => {

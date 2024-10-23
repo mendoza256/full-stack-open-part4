@@ -95,16 +95,10 @@ describe("addition of a new blog", () => {
       url: "http://testblog.com",
     };
 
-    console.log("Token being used:", token);
-    console.log("New blog data:", newBlog);
-
     const response = await api
       .post("/api/blogs")
       .set("Authorization", `Bearer ${token}`)
       .send(newBlog);
-
-    console.log("Response status:", response.status);
-    console.log("Response body:", response.body);
 
     assert.strictEqual(response.status, 201);
     assert.strictEqual(response.body.likes, 0);
@@ -139,15 +133,43 @@ describe("addition of a new blog", () => {
 });
 
 describe("a specified blog", () => {
+  let token;
+  let blogToDelete;
+
+  beforeEach(async () => {
+    const testUser = new User({
+      username: "testuser",
+      name: "Test User",
+      passwordHash: await bcrypt.hash("testpassword", 10),
+    });
+    await testUser.save();
+
+    const userForToken = {
+      username: testUser.username,
+      id: testUser._id,
+    };
+    token = jwt.sign(userForToken, process.env.SECRET);
+
+    const newBlog = new Blog({
+      title: "Test Blog",
+      author: "Test Author",
+      url: "http://testblog.com",
+      likes: 0,
+      user: testUser._id,
+    });
+    blogToDelete = await newBlog.save();
+  });
+
   test("gets deleted", async () => {
-    const blogsAtStart = await api.get("/api/blogs");
-    const blogToDelete = blogsAtStart.body[0];
+    const id = blogToDelete._id.toString();
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+    await api
+      .delete(`/api/blogs/${id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
 
-    const blogsAtEnd = await blogs_helper.blogsInDB();
-
-    assert.strictEqual(blogsAtEnd.length, blogs_helper.initialBlogs.length - 1);
+    const blogsAtEnd = await Blog.find({});
+    assert.strictEqual(blogsAtEnd.length, blogs_helper.initialBlogs.length);
   });
 
   test("gets its likes updated", async () => {
@@ -155,7 +177,7 @@ describe("a specified blog", () => {
     const blogToUpdate = response.body[0];
     const updatedBlog = {
       ...blogToUpdate,
-      likes: 8, // updated  +1 like
+      likes: 8,
     };
 
     await api
