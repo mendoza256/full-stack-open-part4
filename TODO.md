@@ -2,8 +2,8 @@
 [X] add test for to test token authentication
 
 4.19
-[ ] posting blogs is only possible with authenticated token
-[ ] token should verify user that posted blog
+[X] posting blogs is only possible with authenticated token
+[X] token should verify user that posted blog
 
 4.20
 [ ] refactor getTokenFrom function to be middleware (should take token from auth header, assign to token field of req object)

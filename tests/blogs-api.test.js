@@ -1,13 +1,13 @@
 const supertest = require("supertest");
 const app = require("../app.js");
 const api = supertest(app);
-
 const mongoose = require("mongoose");
 const Blog = require("../models/blog.js");
 const User = require("../models/user.js");
 const assert = require("node:assert");
 const { test, beforeEach, describe, after } = require("node:test");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const users_helper = require("./utils/test_helper_users.js");
 const blogs_helper = require("./utils/test_helper_blogs.js");
@@ -167,6 +167,47 @@ describe("a specified blog", () => {
 
     assert.strictEqual(blogsAtEnd[0].likes, 8);
   });
+});
+
+test("token should verify user that posted blog", async () => {
+  const testUser = new User({
+    username: "testuser",
+    name: "Test User",
+    passwordHash: await bcrypt.hash("testpassword", 10),
+  });
+  await testUser.save();
+
+  const userForToken = {
+    username: testUser.username,
+    id: testUser._id,
+  };
+  const token = jwt.sign(userForToken, process.env.SECRET);
+
+  const newBlog = {
+    title: "Test Blog",
+    author: "Test Author",
+    url: "http://testblog.com",
+    likes: 0,
+  };
+
+  const response = await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  assert.strictEqual(response.body.title, newBlog.title);
+  assert.strictEqual(response.body.author, newBlog.author);
+  assert.strictEqual(response.body.url, newBlog.url);
+  assert.strictEqual(response.body.user.toString(), testUser._id.toString());
+
+  const savedBlog = await Blog.findById(response.body.id).populate("user");
+
+  assert.strictEqual(savedBlog.user._id.toString(), testUser._id.toString());
+
+  await Blog.findByIdAndDelete(response.body.id);
+  await User.findByIdAndDelete(testUser._id);
 });
 
 after(async () => {
