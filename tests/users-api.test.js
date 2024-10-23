@@ -12,7 +12,7 @@ beforeEach(async () => {
   await User.deleteMany({});
 
   await User.insertMany(users_helper.initialUsers);
-  const passwordHash = await bcrypt.hash(process.env.SECRET, 10);
+  const passwordHash = await bcrypt.hash("password", 10);
   const passwordHashString = passwordHash.toString();
   const user = new User({ username: "root", passwordHash: passwordHashString });
 

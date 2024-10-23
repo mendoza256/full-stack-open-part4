@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const { describe, test, after, beforeEach } = require("node:test");
+const { test, after, beforeEach } = require("node:test");
 const assert = require("node:assert");
 const supertest = require("supertest");
 const app = require("../app");
@@ -12,7 +12,10 @@ beforeEach(async () => {
   await User.deleteMany({});
 
   await User.insertMany(users_helper.initialUsers);
-  const passwordHash = await bcrypt.hash(process.env.SECRET, 10);
+
+  const password = "password";
+
+  const passwordHash = await bcrypt.hash(password, 10);
   const passwordHashString = passwordHash.toString();
   const user = new User({ username: "root", passwordHash: passwordHashString });
 
@@ -20,11 +23,14 @@ beforeEach(async () => {
 });
 
 test("user can login", async () => {
-  const loginUser = users_helper.initialUsers[0];
+  const rootUser = {
+    username: "root",
+    password: "password",
+  };
 
   const newUser = {
-    username: loginUser.username,
-    password: loginUser.password,
+    username: rootUser.username,
+    password: rootUser.password,
   };
 
   const response = await api
@@ -32,11 +38,9 @@ test("user can login", async () => {
     .send(newUser)
     .expect(200)
     .expect("Content-Type", /application\/json/);
-  // expect { token, username: user.username, name: user.name } in response
 
   assert.ok(response.body.token);
   assert.strictEqual(response.body.username, newUser.username);
-  assert.strictEqual(response.body.name, "Test user");
 });
 
 after(async () => {

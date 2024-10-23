@@ -7,16 +7,20 @@ const Blog = require("../models/blog.js");
 const User = require("../models/user.js");
 const assert = require("node:assert");
 const { test, beforeEach, describe, after } = require("node:test");
+const bcrypt = require("bcrypt");
 
 const users_helper = require("./utils/test_helper_users.js");
 const blogs_helper = require("./utils/test_helper_blogs.js");
 
 beforeEach(async () => {
-  // set up users
   await User.deleteMany({});
   const usersInDb = await User.insertMany(users_helper.initialUsers);
 
-  // set up blogs
+  const passwordHash = await bcrypt.hash("password", 10);
+  const passwordHashString = passwordHash.toString();
+  const user = new User({ username: "root", passwordHash: passwordHashString });
+  await user.save();
+
   await Blog.deleteMany({});
   const initialBlogs = blogs_helper.getInitialBlogsWithUserId(usersInDb);
   const blogsObjects = initialBlogs.map((blog) => new Blog(blog));
@@ -54,13 +58,18 @@ test("the toJSON method transforms _id to id", async () => {
 
 describe("addition of a new blog", () => {
   test("that is valid", async () => {
-    const usersAtStart = await users_helper.usersInDb();
+    const response = await api
+      .post("/api/login")
+      .send({ username: "root", password: "password" });
+
+    const token = response.body.token;
 
     const newBlog = {
       title: "test",
       author: "test",
       url: "test.de",
-      userId: usersAtStart[0].id,
+      likes: 0,
+      authorization: "Bearer " + token,
     };
 
     await api

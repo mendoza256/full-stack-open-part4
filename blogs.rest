@@ -8,7 +8,8 @@ content-type: application/json
     "title": "sample 7",
     "author": "muffi",
     "url": "localhost:3002/blog2",
-    "userId": "670ed8cc77adf738d8374828"
+    "userId": "671932e4be4a5b9710d228fe",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY3MTkzMmU0YmU0YTViOTcxMGQyMjhmZSIsImlhdCI6MTcyOTcwNDY3NywiZXhwIjoxNzI5NzA4Mjc3fQ._7qyrz-Dvg0b31z4MizOBR6c1m95cqiZh7tSbEFUCJw"
 }
 
 ###

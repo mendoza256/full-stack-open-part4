@@ -1,5 +1,5 @@
 4.18
-[ ] add test for to test token authentication
+[X] add test for to test token authentication
 
 4.19
 [ ] posting blogs is only possible with authenticated token
