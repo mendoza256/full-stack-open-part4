@@ -29,6 +29,7 @@ app.use(
 
 app.use(getTokenFrom);
 app.use(userExtractor);
+
 app.use("/api/blogs/", blogRouter);
 app.use("/api/users/", userRouter);
 app.use("/api/login", loginRouter);

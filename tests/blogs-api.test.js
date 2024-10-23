@@ -118,17 +118,15 @@ describe("addition of a new blog", () => {
       .expect(400);
   });
 
-  test("without url returns 400", async () => {
+  test("without token returns 401", async () => {
     const newBlog = {
-      title: "test",
-      author: "test",
+      title: "Test Blog",
+      author: "Test Author",
+      url: "http://testblog.com",
+      likes: 0,
     };
 
-    await api
-      .post("/api/blogs")
-      .set("Authorization", `Bearer ${token}`)
-      .send(newBlog)
-      .expect(400);
+    await api.post("/api/blogs").send(newBlog).expect(401);
   });
 });
 
