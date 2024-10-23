@@ -7,7 +7,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const config = require("./utils/config");
 const loginRouter = require("./controllers/login");
-const { error } = require("./utils/middleware");
+const { error, getTokenFrom } = require("./utils/middleware");
 
 const mongoUrl = config.MONGODB_URI;
 
@@ -26,8 +26,8 @@ app.use(
     ":method :url :status :res[content-length] - :response-time ms content: :resbody"
   )
 );
-// TODO add token extractor
-// app.use(middleware.tokenExtractor)
+
+app.use(getTokenFrom);
 
 app.use("/api/blogs/", blogRouter);
 app.use("/api/users/", userRouter);
