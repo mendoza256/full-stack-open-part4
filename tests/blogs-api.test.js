@@ -18,7 +18,11 @@ beforeEach(async () => {
 
   const passwordHash = await bcrypt.hash("password", 10);
   const passwordHashString = passwordHash.toString();
-  const user = new User({ username: "root", passwordHash: passwordHashString });
+  const user = new User({
+    username: "root",
+    passwordHash: passwordHashString,
+    name: "root",
+  });
   await user.save();
 
   await Blog.deleteMany({});
@@ -41,7 +45,7 @@ test("there are two blogs", async () => {
   assert.strictEqual(response.body.length, blogs_helper.initialBlogs.length);
 });
 
-test("the first note is about Go To Statement", async () => {
+test("the first blog is about Go To Statement", async () => {
   const response = await api.get("/api/blogs");
 
   const titles = response.body.map((e) => e.title);
