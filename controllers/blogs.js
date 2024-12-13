@@ -39,7 +39,6 @@ blogRouter.post("/", async (request, response) => {
 });
 
 blogRouter.delete("/:id", async (request, response) => {
-  console.log("request user", request.user.username);
   const user = request.user;
 
   if (!user) {
