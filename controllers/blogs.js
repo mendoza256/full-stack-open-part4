@@ -7,7 +7,34 @@ blogRouter.get("/", async (request, response) => {
     username: 1,
     name: 1,
   });
-  return response.json(blogs);
+  return response.status(200).json(blogs);
+});
+
+blogRouter.post("/:id/comments", async (request, response) => {
+  const blog = await Blog.findById(request.params.id);
+
+  if (!blog) {
+    return response.status(404).end();
+  }
+
+  console.log(request.body);
+
+  const { title, author, url, likes, comments } = request.body;
+  const updatedBlog = {
+    title,
+    author,
+    url,
+    likes,
+    comments,
+  };
+
+  const result = await Blog.findByIdAndUpdate(request.params.id, updatedBlog, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  });
+
+  response.status(200).json(result);
 });
 
 blogRouter.get("/:id", async (request, response) => {
@@ -16,7 +43,7 @@ blogRouter.get("/:id", async (request, response) => {
     username: 1,
     name: 1,
   });
-  return response.json(blog);
+  return response.status(200).json(blog);
 });
 
 blogRouter.post("/", async (request, response) => {
@@ -33,6 +60,7 @@ blogRouter.post("/", async (request, response) => {
     url: body.url,
     likes: body.likes || 0,
     user: user._id,
+    comments: body.comments || [],
   });
 
   try {
@@ -77,12 +105,13 @@ blogRouter.put("/:id", async (request, response) => {
     return response.status(404).end();
   }
 
-  const { title, author, url, likes } = request.body;
+  const { title, author, url, likes, comments } = request.body;
   const updatedBlog = {
     title,
     author,
     url,
     likes,
+    comments,
   };
 
   const result = await Blog.findByIdAndUpdate(request.params.id, updatedBlog, {
