@@ -17,24 +17,30 @@ blogRouter.post("/:id/comments", async (request, response) => {
     return response.status(404).end();
   }
 
-  console.log(request.body);
-
-  const { title, author, url, likes, comments } = request.body;
+  const { comment } = request.body;
   const updatedBlog = {
-    title,
-    author,
-    url,
-    likes,
-    comments,
+    title: blog.title,
+    author: blog.author,
+    url: blog.url,
+    likes: blog.likes,
+    comments: [...blog.comments, comment],
   };
 
-  const result = await Blog.findByIdAndUpdate(request.params.id, updatedBlog, {
-    new: true,
-    runValidators: true,
-    context: "query",
-  });
-
-  response.status(200).json(result);
+  try {
+    const result = await Blog.findByIdAndUpdate(
+      request.params.id,
+      updatedBlog,
+      {
+        new: true,
+        runValidators: true,
+        context: "query",
+      }
+    );
+    response.status(200).json(result);
+    // eslint-disable-next-line no-unused-vars
+  } catch (error) {
+    response.status(400).json({ error: "Invalid request data" });
+  }
 });
 
 blogRouter.get("/:id", async (request, response) => {
